@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 {
     if (argc < 3)
     {
-        cerr << "command invalid! example: ./ChatServer 127.0.0.1 6000" << endl;
+        cerr << "command invalid! example: ./ChatServer 192.168.84.128 6000" << endl;
         exit(-1);
     }
 
