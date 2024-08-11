@@ -7,6 +7,6 @@ BUILD_DIR="$(pwd)/build"
 rm -rf "$BUILD_DIR"/*  
   
 # 进入 build 目录并执行 cmake 和 make  
-cd "$BUILD_DIR" && \  
-    cmake .. && \  
+cd "$BUILD_DIR" &&  
+    cmake .. &&  
     make
