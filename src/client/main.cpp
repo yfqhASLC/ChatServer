@@ -16,8 +16,8 @@ using json = nlohmann::json;
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <semaphore.h>
-#include <atomic>
-#include<sstream>
+#include <atomic> //C++11  提供的原子类型的操作和函数，用于在多线程程序中实现无锁的线程安全编程
+#include <sstream>
 
 #include "group.hpp"
 #include "user.hpp"
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
                 cerr << "send login msg error:" << request << endl;
             }
 
-            sem_wait(&rwsem); // 等待信号量，由子线程处理完登录的响应消息后，通知这里
+            sem_wait(&rwsem); // 等待信号量，由子线程处理完登录的响应消息后，通知这里。没有通知就阻塞在这里，不往下进行
 
             if (g_isLoginSuccess)
             {
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
         break;
         case 3: // quit业务
             close(clientfd);
-            sem_destroy(&rwsem);
+            sem_destroy(&rwsem); // 释放
             exit(0);
         default:
             cerr << "invalid input!" << endl;
@@ -206,7 +206,7 @@ void doRegResponse(json &responsejs)
     }
     else // 注册成功
     {
-        cout << responsejs["errmsg"]<<" userid is " << responsejs["id"]
+        cout << responsejs["errmsg"] << " userid is " << responsejs["id"]
              << ", do not forget it!" << endl;
     }
 }
@@ -307,8 +307,8 @@ void readTaskHandler(int clientfd)
 {
     for (;;)
     {
-        char buffer[1024] = {0};
-        int len = recv(clientfd, buffer, 1024, 0); // 阻塞了
+        char buffer[2048] = {0};                   // 容量可能需要设置大一些,不然内容超出2048会被截断    1024->2048
+        int len = recv(clientfd, buffer, 2048, 0); // 容量可能需要设置大一些,不然内容超出2048会被截断    1024->2048
         if (-1 == len || 0 == len)
         {
             close(clientfd);
@@ -368,14 +368,14 @@ void showCurrentUserData()
     {
         for (Group &group : g_currentUserGroupList)
         {
-            cout<<"↓↓↓↓↓↓↓↓↓↓↓↓"<<endl;
+            cout << "↓↓↓↓↓↓↓↓↓↓↓↓" << endl;
             cout << group.getId() << " " << group.getName() << " " << group.getDesc() << endl;
             for (GroupUser &user : group.getUsers())
             {
                 cout << user.getId() << " " << user.getName() << " " << user.getState()
                      << " " << user.getRole() << endl;
             }
-            cout<<"↑↑↑↑↑↑↑↑↑↑↑↑"<<endl;
+            cout << "↑↑↑↑↑↑↑↑↑↑↑↑" << endl;
         }
     }
     cout << "----------------------END of group list----------------------" << endl;
@@ -397,7 +397,7 @@ void groupchat(int, string);
 // "logoff" command handler
 void logoff(int, string);
 //"deleteid" command handler
-void deleteid(int,string);
+void deleteid(int, string);
 
 // 系统支持的客户端命令列表
 unordered_map<string, string> commandMap = {
@@ -420,7 +420,7 @@ unordered_map<string, function<void(int, string)>> commandHandlerMap = {
     {"groupchat", groupchat},
     {"logoff", logoff},
     {"deleteid", deleteid},
-    };
+};
 
 // 主聊天页面程序
 void mainMenu(int clientfd)
@@ -597,9 +597,8 @@ void logoff(int clientfd, string)
     }
 }
 //"deleteid" command handler
-void deleteid(int,string)
+void deleteid(int, string)
 {
-
 }
 
 // 获取系统时间（聊天信息需要添加时间信息）
