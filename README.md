@@ -5,7 +5,7 @@ C++集群聊天服务器和客户端源码：基于muduo实现 +json+MySQL+nginx
 1. cd build   
 2. rm -rf *  
 3. cmake ..  
-4. make
+4. make  
 or使用自动编译脚本  ./autobuild.sh  
 
 技术栈：  
